@@ -6,9 +6,9 @@ import lombok.*;
 @Entity @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Pedido {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    private Long clienteId;
+    private Integer clienteId;
 
     /** Total calculado usando la librería del componente C */
     private double total;

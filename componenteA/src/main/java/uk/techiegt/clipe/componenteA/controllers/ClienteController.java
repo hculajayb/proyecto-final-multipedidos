@@ -1,31 +1,59 @@
 package uk.techiegt.clipe.componenteA.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import uk.techiegt.clipe.componenteA.dto.ClienteInput;
-import uk.techiegt.clipe.componenteA.entities.Cliente;
-import uk.techiegt.clipe.componenteA.repositories.ClienteRepository;
+import org.springframework.web.bind.annotation.RestController;
+import uk.techiegt.clipe.componenteA.model.ClienteDto;
+import uk.techiegt.clipe.componenteA.model.ClienteInputDto;
+import uk.techiegt.clipe.componenteA.services.ClienteService;
+import uk.techiegt.clipe.componenteA.spec.ClientesApi;
 
-import java.net.URI;
 import java.util.List;
 
+/**
+ * Implementación del contrato OpenAPI (ClientesApi)
+ * para la gestión de clientes.
+ */
 @RestController
-@RequestMapping("/clientes")
-public class ClienteController {
-    private final ClienteRepository repo;
+public class ClienteController implements ClientesApi {
 
-    public ClienteController(ClienteRepository repo) { this.repo = repo; }
+    private final ClienteService clienteService;
 
-    @PostMapping
-    public ResponseEntity<Cliente> crear(@RequestBody ClienteInput input) {
-        Cliente c = repo.save(Cliente.builder().nombre(input.nombre()).correo(input.correo()).build());
-        return ResponseEntity.created(URI.create("/clientes/" + c.getId())).body(c);
+    public ClienteController(ClienteService clienteService) {
+        this.clienteService = clienteService;
     }
 
-    @GetMapping public List<Cliente> listar() { return repo.findAll(); }
+    /**
+     * Crear un cliente (POST /clientes)
+     */
+    @Override
+    public ResponseEntity<ClienteDto> crearCliente(ClienteInputDto clienteInputDto) {
+        try {
+            ClienteDto nuevo = clienteService.crear(clienteInputDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Cliente> obtener(@PathVariable Long id) {
-        return repo.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    /**
+     * Listar todos los clientes (GET /clientes)
+     */
+    @Override
+    public ResponseEntity<List<ClienteDto>> listarClientes() {
+        List<ClienteDto> lista = clienteService.listar();
+        return ResponseEntity.ok(lista);
+    }
+
+    /**
+     * Obtener cliente por ID (GET /clientes/{id})
+     */
+    @Override
+    public ResponseEntity<ClienteDto> obtenerClientePorId(Integer id) {
+        ClienteDto cliente = clienteService.obtenerPorId(id);
+        if (cliente != null) {
+            return ResponseEntity.ok(cliente);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

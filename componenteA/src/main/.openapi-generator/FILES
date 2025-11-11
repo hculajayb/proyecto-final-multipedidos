@@ -1,0 +1,10 @@
+README.md
+java/uk/techiegt/clipe/componenteA/model/ClienteDto.java
+java/uk/techiegt/clipe/componenteA/model/ClienteInputDto.java
+java/uk/techiegt/clipe/componenteA/model/PedidoDto.java
+java/uk/techiegt/clipe/componenteA/model/PedidoInputDto.java
+java/uk/techiegt/clipe/componenteA/model/ProductoDto.java
+java/uk/techiegt/clipe/componenteA/spec/ApiUtil.java
+java/uk/techiegt/clipe/componenteA/spec/ClientesApi.java
+java/uk/techiegt/clipe/componenteA/spec/PedidosApi.java
+pom.xml

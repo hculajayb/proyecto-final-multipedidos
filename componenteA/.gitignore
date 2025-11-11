@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Código generado automáticamente por OpenAPI
+src/main/java/uk/techiegt/clipe/componenteA/spec
+src/main/java/uk/techiegt/clipe/componenteA/model
