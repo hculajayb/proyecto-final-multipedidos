@@ -1,15 +1,17 @@
 openapi: 3.0.1
 info:
   title: API Componente A - Clientes y Pedidos
-  version: 1.0.0
-  description: API mínima para gestión de clientes y pedidos (Mysql)
+  version: 1.2.0
+  description: API para gestión de clientes y pedidos con detalle de productos (MySQL)
+
 servers:
   - url: http://localhost:8080
+
 paths:
   /clientes:
     post:
-      summary: Crear un cliente
       operationId: crearCliente
+      summary: Crear un cliente
       requestBody:
         required: true
         content:
@@ -23,11 +25,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Cliente'
-        '400':
-          description: Datos inválidos
     get:
-      summary: Listar todos los clientes
       operationId: listarClientes
+      summary: Listar todos los clientes
       responses:
         '200':
           description: Lista de clientes
@@ -37,10 +37,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Cliente'
+
   /clientes/{id}:
     get:
-      summary: Obtener un cliente por ID
       operationId: obtenerClientePorId
+      summary: Obtener un cliente por ID
       parameters:
         - name: id
           in: path
@@ -57,10 +58,11 @@ paths:
                 $ref: '#/components/schemas/Cliente'
         '404':
           description: Cliente no encontrado
+
   /pedidos:
     post:
-      summary: Crear un pedido
       operationId: crearPedido
+      summary: Crear un pedido con productos
       requestBody:
         required: true
         content:
@@ -74,11 +76,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pedido'
-        '400':
-          description: Datos inválidos
     get:
-      summary: Listar todos los pedidos
       operationId: listarPedidos
+      summary: Listar todos los pedidos
       responses:
         '200':
           description: Lista de pedidos
@@ -88,10 +88,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Pedido'
+
   /pedidos/{id}:
     get:
-      summary: Obtener un pedido por ID
       operationId: obtenerPedidoPorId
+      summary: Obtener un pedido por ID
       parameters:
         - name: id
           in: path
@@ -109,59 +110,68 @@ paths:
         '404':
           description: Pedido no encontrado
 
+  /pedidos/pendientes/{clienteId}:
+    get:
+      operationId: obtenerPedidosPendientesPorCliente
+      summary: Obtener los pedidos pendientes de un cliente
+      parameters:
+        - name: clienteId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Lista de pedidos pendientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pedido'
+
 components:
   schemas:
     Cliente:
       type: object
       properties:
-        id:
-          type: integer
-          format: int32
-        nombre:
-          type: string
-        correo:
-          type: string
+        id: { type: integer, format: int32 }
+        nombre: { type: string }
+        correo: { type: string, format: email }
+
     ClienteInput:
       type: object
-      required:
-        - nombre
-        - correo
+      required: [nombre, correo]
       properties:
-        nombre:
-          type: string
-        correo:
-          type: string
+        nombre: { type: string }
+        correo: { type: string, format: email }
+
     Producto:
       type: object
       properties:
-        nombre:
-          type: string
-        precio:
-          type: number
-          format: double
+        nombre: { type: string }
+        precio: { type: number, format: double }
+
     Pedido:
       type: object
       properties:
-        id:
-          type: integer
-        clienteId:
-          type: integer
+        id: { type: integer, format: int32 }
+        clienteId: { type: integer, format: int32 }
         productos:
           type: array
           items:
             $ref: '#/components/schemas/Producto'
-        total:
-          type: number
-          format: double
+        total: { type: number, format: double }
+        estado: { type: string, example: "PENDIENTE" }
+
     PedidoInput:
       type: object
-      required:
-        - clienteId
-        - productos
+      required: [clienteId, productos]
       properties:
-        clienteId:
-          type: integer
+        clienteId: { type: integer, format: int32 }
         productos:
           type: array
           items:
             $ref: '#/components/schemas/Producto'
+
