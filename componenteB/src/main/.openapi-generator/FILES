@@ -1,0 +1,10 @@
+README.md
+java/uk/techiegt/profa/componenteB/model/FacturaDto.java
+java/uk/techiegt/profa/componenteB/model/FacturaInputDto.java
+java/uk/techiegt/profa/componenteB/model/PedidoReferenciaDto.java
+java/uk/techiegt/profa/componenteB/model/ProveedorDto.java
+java/uk/techiegt/profa/componenteB/model/ProveedorInputDto.java
+java/uk/techiegt/profa/componenteB/spec/ApiUtil.java
+java/uk/techiegt/profa/componenteB/spec/FacturasApi.java
+java/uk/techiegt/profa/componenteB/spec/ProveedoresApi.java
+pom.xml

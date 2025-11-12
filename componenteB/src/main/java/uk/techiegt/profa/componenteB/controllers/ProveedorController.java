@@ -1,26 +1,36 @@
 package uk.techiegt.profa.componenteB.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import uk.techiegt.profa.componenteB.dto.ProveedorInput;
-import uk.techiegt.profa.componenteB.entities.Proveedor;
-import uk.techiegt.profa.componenteB.repositories.ProveedorRepository;
+import org.springframework.web.bind.annotation.RestController;
+import uk.techiegt.profa.componenteB.model.ProveedorDto;
+import uk.techiegt.profa.componenteB.model.ProveedorInputDto;
+import uk.techiegt.profa.componenteB.services.ProveedorService;
+import uk.techiegt.profa.componenteB.spec.ProveedoresApi;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/proveedores")
-public class ProveedorController {
-    private final ProveedorRepository repo;
+public class ProveedorController implements ProveedoresApi {
 
-    public ProveedorController(ProveedorRepository repo) { this.repo = repo; }
+    private final ProveedorService proveedorService;
 
-    @PostMapping
-    public ResponseEntity<Proveedor> crear(@RequestBody ProveedorInput input) {
-        Proveedor p = repo.save(Proveedor.builder().nombre(input.nombre()).correo(input.correo()).build());
-        return ResponseEntity.created(URI.create("/proveedores/" + p.getId())).body(p);
+    public ProveedorController(ProveedorService proveedorService) {
+        this.proveedorService = proveedorService;
     }
 
-    @GetMapping public List<Proveedor> listar() { return repo.findAll(); }
+    @Override
+    public ResponseEntity<ProveedorDto> crear(ProveedorInputDto proveedorInputDto) {
+        try {
+            ProveedorDto nuevo = proveedorService.crear(proveedorInputDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<ProveedorDto>> listar() {
+        return ResponseEntity.ok(proveedorService.listar());
+    }
 }

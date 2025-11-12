@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Código generado automáticamente por OpenAPI
+src/main/java/uk/techiegt/profa/componenteB/spec
+src/main/java/uk/techiegt/profa/componenteB/model

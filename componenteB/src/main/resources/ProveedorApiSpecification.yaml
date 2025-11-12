@@ -1,0 +1,151 @@
+openapi: 3.0.1
+info:
+  title: API Componente B - Proveedores y Facturas
+  version: 1.0.0
+  description: API mínima para gestión de proveedores y facturas (PostgreSQL)
+servers:
+  - url: http://localhost:8081
+paths:
+  /proveedores:
+    post:
+      summary: Registrar un proveedor
+      operationId: crear
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProveedorInput'
+      responses:
+        '201':
+          description: Proveedor creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proveedor'
+        '400':
+          description: Datos inválidos
+    get:
+      summary: Listar todos los proveedores
+      operationId: listar
+      responses:
+        '200':
+          description: Lista de proveedores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Proveedor'
+  /facturas:
+    post:
+      summary: Registrar una factura
+      operationId: crear
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacturaInput'
+      responses:
+        '201':
+          description: Factura registrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factura'
+        '400':
+          description: Datos inválidos
+    get:
+      summary: Listar todas las facturas
+      operationId: listar
+      responses:
+        '200':
+          description: Lista de facturas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Factura'
+  /facturas/{id}:
+    get:
+      summary: Obtener factura por ID
+      operationId: obtener
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Factura encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factura'
+        '404':
+          description: Factura no encontrada
+
+components:
+  schemas:
+    Proveedor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nombre:
+          type: string
+        correo:
+          type: string
+    ProveedorInput:
+      type: object
+      required:
+        - nombre
+        - correo
+      properties:
+        nombre:
+          type: string
+        correo:
+          type: string
+    PedidoReferencia:
+      type: object
+      properties:
+        pedidoId:
+          type: integer
+          format: int32
+        total:
+          type: number
+          format: double
+    Factura:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        proveedorId:
+          type: integer
+          format: int32
+        pedidos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PedidoReferencia'
+        totalFactura:
+          type: number
+          format: double
+    FacturaInput:
+      type: object
+      required:
+        - proveedorId
+        - pedidos
+      properties:
+        proveedorId:
+          type: integer
+          format: int32
+        pedidos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PedidoReferencia'

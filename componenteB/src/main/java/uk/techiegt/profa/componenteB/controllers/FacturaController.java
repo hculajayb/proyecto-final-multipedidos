@@ -1,35 +1,42 @@
 package uk.techiegt.profa.componenteB.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import uk.techiegt.profa.componenteB.dto.FacturaInput;
-import uk.techiegt.profa.componenteB.entities.Factura;
-import uk.techiegt.profa.componenteB.repositories.FacturaRepository;
+import org.springframework.web.bind.annotation.RestController;
+import uk.techiegt.profa.componenteB.model.FacturaDto;
+import uk.techiegt.profa.componenteB.model.FacturaInputDto;
 import uk.techiegt.profa.componenteB.services.FacturaService;
+import uk.techiegt.profa.componenteB.spec.FacturasApi;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/facturas")
-public class FacturaController {
-    private final FacturaService service;
-    private final FacturaRepository repo;
+public class FacturaController implements FacturasApi {
 
-    public FacturaController(FacturaService service, FacturaRepository repo) {
-        this.service = service; this.repo = repo;
+    private final FacturaService facturaService;
+
+    public FacturaController(FacturaService facturaService) {
+        this.facturaService = facturaService;
     }
 
-    @PostMapping
-    public ResponseEntity<Factura> crear(@RequestBody FacturaInput input) {
-        Factura f = service.crear(input);
-        return ResponseEntity.created(URI.create("/facturas/" + f.getId())).body(f);
+    @Override
+    public ResponseEntity<FacturaDto> crear(FacturaInputDto facturaInputDto) {
+        try {
+            FacturaDto nueva = facturaService.crear(facturaInputDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
-    @GetMapping public List<Factura> listar() { return repo.findAll(); }
+    @Override
+    public ResponseEntity<List<FacturaDto>> listar() {
+        return ResponseEntity.ok(facturaService.listar());
+    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Factura> obtener(@PathVariable Long id) {
-        return repo.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    @Override
+    public ResponseEntity<FacturaDto> obtener(Integer id) {
+        FacturaDto dto = facturaService.obtenerPorId(id);
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }
