@@ -19,24 +19,45 @@ public class FacturaController implements FacturasApi {
         this.facturaService = facturaService;
     }
 
+    /**
+     * POST /facturas
+     * Crea una nueva factura a partir de los pedidos pendientes del cliente.
+     */
     @Override
     public ResponseEntity<FacturaDto> crear(FacturaInputDto facturaInputDto) {
         try {
-            FacturaDto nueva = facturaService.crear(facturaInputDto);
+            FacturaDto nueva = facturaService.crearFactura(facturaInputDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (IllegalStateException e) {
+            // No hay pedidos pendientes para ese cliente
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * GET /facturas
+     * Lista todas las facturas.
+     */
     @Override
     public ResponseEntity<List<FacturaDto>> listar() {
         return ResponseEntity.ok(facturaService.listar());
     }
 
+    /**
+     * GET /facturas/{id}
+     * Obtiene una factura por ID.
+     */
     @Override
     public ResponseEntity<FacturaDto> obtener(Integer id) {
         FacturaDto dto = facturaService.obtenerPorId(id);
-        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (dto != null) {
+            return ResponseEntity.ok(dto);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

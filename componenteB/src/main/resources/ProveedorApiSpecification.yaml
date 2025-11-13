@@ -101,6 +101,7 @@ components:
           type: string
         correo:
           type: string
+          format: email
     ProveedorInput:
       type: object
       required:
@@ -111,6 +112,7 @@ components:
           type: string
         correo:
           type: string
+          format: email
     PedidoReferencia:
       type: object
       properties:
