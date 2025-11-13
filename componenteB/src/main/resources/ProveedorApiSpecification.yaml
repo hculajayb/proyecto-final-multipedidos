@@ -123,12 +123,9 @@ components:
     Factura:
       type: object
       properties:
-        id:
-          type: integer
-          format: int32
-        proveedorId:
-          type: integer
-          format: int32
+        id: { type: integer, format: int32 }
+        proveedorId: { type: integer, format: int32 }
+        clienteId: { type: integer, format: int32 }
         pedidos:
           type: array
           items:
@@ -140,12 +137,11 @@ components:
       type: object
       required:
         - proveedorId
-        - pedidos
+        - clienteId
       properties:
         proveedorId:
           type: integer
           format: int32
-        pedidos:
-          type: array
-          items:
-            $ref: '#/components/schemas/PedidoReferencia'
+        clienteId:
+          type: integer
+          format: int32
