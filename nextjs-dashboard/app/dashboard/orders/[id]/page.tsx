@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 
 interface Producto {
@@ -17,20 +17,36 @@ interface Pedido {
   productos: Producto[];
 }
 
-export default function OrderDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+interface Cliente {
+  id: number;
+  nombre: string;
+}
+
+export default function OrderDetailPage(props: { params: Promise<{ id: string }> }) {
+  const { id } = use(props.params);
 
   const [pedido, setPedido] = useState<Pedido | null>(null);
+  const [cliente, setCliente] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingCliente, setLoadingCliente] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     fetch(`/api/pedidos/${id}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Not found");
-        return await res.json();
+      .then(async (r) => {
+        if (!r.ok) throw new Error();
+        return await r.json();
       })
-      .then(setPedido)
+      .then((pedido: Pedido) => {
+        setPedido(pedido);
+
+        setLoadingCliente(true);
+        fetch(`/api/clientes/${pedido.clienteId}`)
+          .then((r) => r.json())
+          .then((data) => setCliente(data))
+          .catch(() => console.error("Error loading customer"))
+          .finally(() => setLoadingCliente(false));
+      })
       .catch(() => setError("Order not found"))
       .finally(() => setLoading(false));
   }, [id]);
@@ -49,15 +65,16 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
 
       <h1 className="text-2xl font-semibold">Order Detail #{pedido?.id}</h1>
 
-      {/* Basic info */}
-      <div className="border rounded-md p-4 bg-gray-50">
-        <p><strong>Customer ID:</strong> {pedido?.clienteId}</p>
+      <div className="border rounded-md p-4 bg-gray-50 space-y-1">
+        <p>
+          <strong>Customer:</strong>{" "}
+          {loadingCliente ? "Loading..." : cliente?.nombre}
+        </p>
         <p><strong>Status:</strong> {pedido?.estado}</p>
         <p><strong>Total:</strong> Q{pedido?.total.toFixed(2)}</p>
-        <p><strong>Created at:</strong> {pedido?.fechaCreacion}</p>
+        <p><strong>Created at:</strong> {pedido?.fechaCreacion ?? "N/A"}</p>
       </div>
 
-      {/* Product list */}
       <div className="border rounded-md p-4 bg-gray-50">
         <h2 className="text-xl font-semibold mb-3">Products</h2>
 
@@ -70,7 +87,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
               </tr>
             </thead>
             <tbody>
-              {pedido?.productos.map((prod, idx) => (
+              {pedido.productos.map((prod, idx) => (
                 <tr key={idx} className="border-b">
                   <td className="p-2">{prod.nombre}</td>
                   <td className="p-2">Q{prod.precio.toFixed(2)}</td>
