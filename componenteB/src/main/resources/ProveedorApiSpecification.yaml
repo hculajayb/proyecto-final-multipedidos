@@ -128,6 +128,9 @@ components:
         id: { type: integer, format: int32 }
         proveedorId: { type: integer, format: int32 }
         clienteId: { type: integer, format: int32 }
+        fechaCreacion:
+          type: string
+          format: date-time     # <── NUEVO
         pedidos:
           type: array
           items:

@@ -11,6 +11,7 @@ import uk.techiegt.profa.componenteB.model.PedidoReferenciaDto;
 import uk.techiegt.profa.componenteB.repositories.FacturaRepository;
 import uk.techiegt.profa.componenteB.repositories.PedidoReferenciaRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,8 +68,9 @@ public class FacturaService {
         // 3️⃣ Crear y guardar factura
         Factura factura = new Factura();
         factura.setProveedorId(input.getProveedorId());
-        factura.setClienteId(clienteId);
+        factura.setClienteId(input.getClienteId());
         factura.setTotalFactura(totalFactura);
+        factura.setFechaCreacion(LocalDateTime.now());  // 👈 NUEVO
 
         Factura guardada = facturaRepository.save(factura);
 
