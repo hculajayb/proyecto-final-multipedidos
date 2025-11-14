@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import OrdersTable from "@/app/ui/orders/table";
 
@@ -19,7 +20,15 @@ export default function OrdersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Orders</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold mb-6">Orders</h1>
+          <Link
+              href="/dashboard/orders/create"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500"
+            >
+              Create Order
+            </Link>
+      </div>
       <OrdersTable orders={orders} />
     </div>
   );
