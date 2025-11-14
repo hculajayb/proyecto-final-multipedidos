@@ -1,23 +1,19 @@
-import { NextResponse } from "next/server";
-
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const facturaId = params.id;
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;   // ✔️ Ahora sí
 
   try {
-    // Llamamos al Componente B en el puerto 8081
-    const res = await fetch(`http://localhost:8081/facturas/${facturaId}`);
+    const response = await fetch(`http://localhost:8081/facturas/${id}`);
 
-    if (!res.ok) {
-      return NextResponse.json({ message: "Factura no encontrada" }, { status: 404 });
+    if (!response.ok) {
+      return new Response("Factura no encontrada", { status: 404 });
     }
 
-    const data = await res.json();
-    return NextResponse.json(data);
-
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Error al consultar la factura" },
-      { status: 500 }
-    );
+    const factura = await response.json();
+    return Response.json(factura);
+  } catch (e) {
+    return new Response("Error interno", { status: 500 });
   }
 }

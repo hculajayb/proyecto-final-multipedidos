@@ -1,20 +1,14 @@
 import { NextResponse } from "next/server";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await context.params;  // ✔️ Ahora sí
 
   const resp = await fetch(`http://localhost:8080/pedidos/${id}`);
 
-  if (!resp.ok) {
-    return NextResponse.json(
-      { error: "Order not found" },
-      { status: resp.status }
-    );
-  }
-
   const data = await resp.json();
-  return NextResponse.json(data);
+  return Response.json(data);
 }
+
