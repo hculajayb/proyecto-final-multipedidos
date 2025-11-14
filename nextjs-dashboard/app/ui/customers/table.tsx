@@ -29,10 +29,10 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
                   <td className="whitespace-nowrap px-3 py-4 text-sm">{c.nombre}</td>
                   <td className="whitespace-nowrap px-3 py-4 text-sm">{c.correo}</td>
 
-                  <div className="flex justify-end gap-2">
+                  <td className="whitespace-nowrap px-3 py-4 text-sm text-right space-x-3">
                     <EditCustomerButton id={c.id} />
                     <DeleteCustomerButton id={c.id} />
-                  </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
