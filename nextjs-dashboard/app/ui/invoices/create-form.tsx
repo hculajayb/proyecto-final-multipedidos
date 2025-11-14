@@ -1,130 +1,168 @@
-'use client';
+"use client";
 
-import { CustomerField } from '@/app/lib/definitions';
-import Link from 'next/link';
-import {
-  CheckIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  UserCircleIcon,
-} from '@heroicons/react/24/outline';
-import { Button } from '@/app/ui/button';
-import { createInvoice, State } from '@/app/lib/actions';
-import { useActionState } from 'react';
+import { useState, useEffect } from "react";
 
-export default function Form({ customers }: { customers: CustomerField[] }) {
-  const initialState: State = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createInvoice, initialState);
+interface Cliente {
+  id: number;
+  nombre: string;
+}
+
+interface Proveedor {
+  id: number;
+  nombre: string;
+}
+
+interface PedidoPendiente {
+  id: number;
+  total: number;
+  estado: string;
+}
+
+export default function CreateFacturaForm() {
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+  const [selectedCliente, setSelectedCliente] = useState<number | null>(null);
+  const [pedidos, setPedidos] = useState<PedidoPendiente[]>([]);
+  const [loadingPedidos, setLoadingPedidos] = useState(false);
+  const [errorPedidos, setErrorPedidos] = useState("");
+
+  // 🔵 Cargar clientes
+  useEffect(() => {
+    fetch("/api/clientes")
+      .then((res) => res.json())
+      .then(setClientes)
+      .catch(() => console.error("Error al cargar clientes"));
+  }, []);
+
+  // 🟣 Cargar proveedores (componente B)
+  useEffect(() => {
+    fetch("/api/proveedores")
+      .then((res) => res.json())
+      .then(setProveedores)
+      .catch(() => console.error("Error al cargar proveedores"));
+  }, []);
+
+  // 🟠 Cargar pedidos pendientes cuando cambia el cliente
+  useEffect(() => {
+  if (!selectedCliente) return;
+
+  setLoadingPedidos(true);
+  setErrorPedidos("");
+  setPedidos([]);
+
+  fetch(`/api/pedidos/pendientes/${selectedCliente}`)
+    .then(async (res) => {
+      if (!res.ok) throw new Error("Error al cargar pedidos");
+      const data = await res.json();
+
+      // 🚀 Manejo correcto cuando Componente A devuelve []
+      if (!data || data.length === 0) {
+        setErrorPedidos("No hay pedidos pendientes para este cliente.");
+        return [];
+      }
+
+      return data;
+    })
+    .then((data) => {
+      setPedidos(data);
+    })
+    .catch(() => {
+      setErrorPedidos("No hay pedidos pendientes para este cliente.");
+    })
+    .finally(() => setLoadingPedidos(false));
+}, [selectedCliente]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const proveedorId = (document.getElementById("proveedor") as HTMLSelectElement).value;
+
+    const body = {
+      clienteId: selectedCliente,
+      proveedorId: Number(proveedorId),
+    };
+
+    const resp = await fetch("/api/facturas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (resp.ok) {
+      alert("Factura creada exitosamente");
+      window.location.href = "/dashboard/invoices";
+    } else {
+      alert("Error al crear factura");
+    }
+  };
+
   return (
-    <form action={formAction}>
-      <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Customer Name */}
-        <div className="mb-4">
-          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
-            Choose customer
-          </label>
-          <div className="relative">
-            <select
-              id="customer"
-              name="customerId"
-              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue=""
-              aria-describedby="customer-error"
-            >
-              <option value="" disabled>
-                Select a customer
-              </option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
-                </option>
-              ))}
-            </select>
-            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="customer-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.customerId &&
-              state.errors.customerId.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
+    <form onSubmit={handleSubmit} className="p-4 space-y-6 max-w-xl">
 
-        {/* Invoice Amount */}
-        <div className="mb-4">
-          <label htmlFor="amount" className="mb-2 block text-sm font-medium">
-            Choose an amount
-          </label>
-          <div className="relative mt-2 rounded-md">
-            <div className="relative">
-              <input
-                id="amount"
-                name="amount"
-                type="number"
-                step="0.01"
-                placeholder="Enter USD amount"
-                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                required
-              />
-              <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-            </div>
-          </div>
-        </div>
-
-        {/* Invoice Status */}
-        <fieldset>
-          <legend className="mb-2 block text-sm font-medium">
-            Set the invoice status
-          </legend>
-          <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
-            <div className="flex gap-4">
-              <div className="flex items-center">
-                <input
-                  id="pending"
-                  name="status"
-                  type="radio"
-                  value="pending"
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                  required
-                />
-                <label
-                  htmlFor="pending"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
-                >
-                  Pending <ClockIcon className="h-4 w-4" />
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="paid"
-                  name="status"
-                  type="radio"
-                  value="paid"
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                  required
-                />
-                <label
-                  htmlFor="paid"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white"
-                >
-                  Paid <CheckIcon className="h-4 w-4" />
-                </label>
-              </div>
-            </div>
-          </div>
-        </fieldset>
-      </div>
-      <div className="mt-6 flex justify-end gap-4">
-        <Link
-          href="/dashboard/invoices"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+      {/* Select Cliente */}
+      <div>
+        <label className="block mb-1 font-medium">Cliente</label>
+        <select
+          className="border p-2 w-full rounded-md"
+          onChange={(e) => setSelectedCliente(Number(e.target.value))}
+          required
         >
-          Cancel
-        </Link>
-        <Button type="submit">Create Invoice</Button>
+          <option value="">Seleccione un cliente</option>
+          {clientes.map((c) => (
+            <option key={c.id} value={c.id}>{c.nombre}</option>
+          ))}
+        </select>
       </div>
+
+      {/* Select Proveedor */}
+      <div>
+        <label className="block mb-1 font-medium">Proveedor</label>
+        <select id="proveedor" className="border p-2 w-full rounded-md" required>
+          <option value="">Seleccione un proveedor</option>
+          {proveedores.map((p) => (
+            <option key={p.id} value={p.id}>{p.nombre}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tabla de pedidos pendientes */}
+      <div className="border rounded-md p-4 bg-gray-50">
+        <h3 className="text-lg font-semibold mb-3">Pedidos pendientes</h3>
+
+        {loadingPedidos && <p>Cargando pedidos...</p>}
+
+        {errorPedidos && (
+          <p className="text-red-600 text-sm">{errorPedidos}</p>
+        )}
+
+        {!loadingPedidos && pedidos.length > 0 && (
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b">
+                <th className="p-2">ID</th>
+                <th className="p-2">Total</th>
+                <th className="p-2">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pedidos.map((p) => (
+                <tr key={p.id} className="border-b">
+                  <td className="p-2">{p.id}</td>
+                  <td className="p-2">${p.total.toFixed(2)}</td>
+                  <td className="p-2">{p.estado}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500"
+      >
+        Crear Factura
+      </button>
     </form>
   );
 }

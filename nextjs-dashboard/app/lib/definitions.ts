@@ -1,88 +1,55 @@
-// This file contains type definitions for your data.
-// It describes the shape of the data, and what data type each property should accept.
-// For simplicity of teaching, we're manually defining these types.
-// However, these types are generated automatically if you're using an ORM such as Prisma.
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-};
+// lib/definitions.ts
 
-export type Customer = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-};
+// ---------- Componente A: Clientes / Pedidos ----------
 
-export type Invoice = {
-  id: string;
-  customer_id: string;
-  amount: number;
-  date: string;
-  // In TypeScript, this is called a string union type.
-  // It means that the "status" property can only be one of the two strings: 'pending' or 'paid'.
-  status: 'pending' | 'paid';
-};
+export interface Cliente {
+  id: number;
+  nombre: string;
+  correo: string;
+}
 
-export type Revenue = {
-  month: string;
-  revenue: number;
-};
+export interface Pedido {
+  id: number;
+  clienteId: number;
+  total: number;
+  estado: string; // "PENDIENTE" | "FACTURADO" u otros
+}
 
-export type LatestInvoice = {
-  id: string;
-  name: string;
-  image_url: string;
-  email: string;
-  amount: string;
-};
+// Este tipo te servirá si quieres mostrar pedidos "pendientes" por cliente
+export interface PedidoPendiente extends Pedido {}
 
-// The database returns a number for amount, but we later format it to a string with the formatCurrency function
-export type LatestInvoiceRaw = Omit<LatestInvoice, 'amount'> & {
-  amount: number;
-};
+// ---------- Componente B: Proveedores / Facturas ----------
 
-export type InvoicesTable = {
-  id: string;
-  customer_id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  date: string;
-  amount: number;
-  status: 'pending' | 'paid';
-};
+export interface Proveedor {
+  id: number;
+  nombre: string;
+  correo: string;
+}
 
-export type CustomersTableType = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: number;
-  total_paid: number;
-};
+export interface PedidoReferencia {
+  pedidoId: number;
+  total: number;
+}
 
-export type FormattedCustomersTable = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: string;
-  total_paid: string;
-};
+export interface Factura {
+  id: number;
+  proveedorId: number;
+  clienteId: number;
+  totalFactura: number;
+  pedidos: PedidoReferencia[];
+}
 
-export type CustomerField = {
-  id: string;
-  name: string;
-};
+// DTO para crear factura desde el dashboard
+export interface CrearFacturaInput {
+  proveedorId: number;
+  clienteId: number;
+}
 
-export type InvoiceForm = {
-  id: string;
-  customer_id: string;
-  amount: number;
-  status: 'pending' | 'paid';
-};
+// ---------- Tipos auxiliares para el dashboard ----------
+
+export interface DashboardMetrics {
+  collected: number;        // total facturado
+  pending: number;          // suma de pedidos pendientes (estado PENDIENTE)
+  totalInvoices: number;    // cantidad de facturas
+  totalCustomers: number;   // cantidad de clientes
+}

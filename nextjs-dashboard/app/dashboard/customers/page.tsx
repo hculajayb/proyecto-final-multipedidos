@@ -1,9 +1,17 @@
-import { Metadata } from 'next';
+import CustomersTable from "@/app/ui/customers/table";
 
-export const metadata: Metadata = {
-  title: 'Customers',
-};
+export default async function CustomersPage() {
+  const res = await fetch("http://localhost:8080/clientes", {
+    next: { revalidate: 5 },
+  });
 
-export default function Page() {
-  return <p>Customers Page</p>;
+  const customers = await res.json();
+
+  return (
+    <div>
+      <h1 className="text-2xl font-semibold mb-6">Customers</h1>
+
+      <CustomersTable customers={customers} />
+    </div>
+  );
 }

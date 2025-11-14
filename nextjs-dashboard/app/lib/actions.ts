@@ -159,4 +159,27 @@ export async function authenticate(
     }
     throw error;
   }
+  
+}
+
+// ------------------------------
+// CUSTOMERS
+// ------------------------------
+
+export async function deleteCustomer(id: number) {
+  const res = await fetch(`http://localhost:8080/clientes/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) throw new Error("Error deleting customer");
+}
+
+export async function updateCustomer(id: number, data: { nombre: string; correo: string }) {
+  const res = await fetch(`http://localhost:8080/clientes/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) throw new Error("Error updating customer");
 }
