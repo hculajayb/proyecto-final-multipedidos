@@ -97,7 +97,10 @@ export default function CreateOrderForm() {
         {productos.map((prod, index) => (
           <div key={index} className="mb-4 border-b pb-3">
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             <label className="block font-medium">Product #{index + 1}</label>
+            <label className="block font-medium">Price</label>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
               <input
@@ -118,10 +121,11 @@ export default function CreateOrderForm() {
                 min="0"
                 step=".01"
                 required
-                value={prod.precio}
-                onChange={(e) =>
-                  updateProduct(index, "precio", Number(e.target.value))
-                }
+                value={prod.precio === 0 ? "" : prod.precio}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateProduct(index, "precio", val === "" ? 0 : Number(val));
+                }}
               />
             </div>
 

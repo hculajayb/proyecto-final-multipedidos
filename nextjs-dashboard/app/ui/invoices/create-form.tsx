@@ -148,7 +148,7 @@ export default function CreateFacturaForm() {
               {pedidos.map((p) => (
                 <tr key={p.id} className="border-b">
                   <td className="p-2">{p.id}</td>
-                  <td className="p-2">${p.total.toFixed(2)}</td>
+                  <td className="p-2">Q{p.total.toFixed(2)}</td>
                   <td className="p-2">{p.estado}</td>
                 </tr>
               ))}

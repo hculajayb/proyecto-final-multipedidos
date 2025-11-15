@@ -7,7 +7,7 @@ interface Order {
   clienteNombre: string;
   total: number;
   estado: string;
-  fechaCreacion: string;
+  //fechaCreacion: string;
 }
 
 export default function OrdersTable({ orders }: { orders: Order[] }) {
@@ -21,7 +21,6 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
               <th className="px-4 py-2 text-left">Customer</th>
               <th className="px-4 py-2 text-left">Total</th>
               <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Date</th>
               <th className="px-4 py-2 text-right">Actions</th>
             </tr>
           </thead>
@@ -33,7 +32,7 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
 
                 <td className="px-4 py-3">{o.clienteNombre}</td>
 
-                <td className="px-4 py-3">${o.total.toFixed(2)}</td>
+                <td className="px-4 py-3">Q{o.total.toFixed(2)}</td>
 
                 <td className="px-4 py-3">
                   <span
@@ -47,10 +46,6 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
                   >
                     {o.estado}
                   </span>
-                </td>
-
-                <td className="px-4 py-3">
-                  {new Date(o.fechaCreacion).toLocaleDateString()}
                 </td>
 
                 <td className="px-4 py-3 text-right">

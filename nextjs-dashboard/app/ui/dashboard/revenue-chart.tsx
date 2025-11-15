@@ -12,7 +12,7 @@ import { fetchRevenue } from '@/app/lib/data';
 export default async function RevenueChart() {
   const revenue = await fetchRevenue();
   
-  const chartHeight = 350;
+  const chartHeight = 300;
   // NOTE: Uncomment this code in Chapter 7
 
    const { yAxisLabels, topLabel } = generateYAxis(revenue);

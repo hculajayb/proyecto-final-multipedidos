@@ -57,7 +57,7 @@ export default function InvoicesPage() {
                 <td className="p-3">{f.id}</td>
                 <td className="p-3">{f.clienteId}</td>
                 <td className="p-3">{f.proveedorId}</td>
-                <td className="p-3">${f.totalFactura.toFixed(2)}</td>
+                <td className="p-3">Q{f.totalFactura.toFixed(2)}</td>
                 <td className="p-3">{new Date(f.fechaCreacion).toLocaleDateString()}</td>
                 <td className="p-3 text-center">
                   <Link

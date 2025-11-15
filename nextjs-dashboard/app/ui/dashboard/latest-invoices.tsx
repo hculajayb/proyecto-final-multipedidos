@@ -14,7 +14,7 @@ export default async function LatestInvoices() {
         {ultimas.map((f) => (
           <li key={f.id} className="flex justify-between">
             <span>Factura #{f.id}</span>
-            <span>${f.totalFactura.toLocaleString()}</span>
+            <span>Q{f.totalFactura.toLocaleString()}</span>
           </li>
         ))}
       </ul>

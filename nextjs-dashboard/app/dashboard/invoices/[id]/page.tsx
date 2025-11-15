@@ -48,7 +48,7 @@ export default function InvoiceDetailPage() {
       <div className="border p-4 rounded-md bg-gray-50">
         <p><strong>Cliente:</strong> {factura.clienteId}</p>
         <p><strong>Proveedor:</strong> {factura.proveedorId}</p>
-        <p><strong>Total:</strong> ${factura.totalFactura.toFixed(2)}</p>
+        <p><strong>Total:</strong> Q{factura.totalFactura.toFixed(2)}</p>
         <p><strong>Fecha:</strong> {new Date(factura.fechaCreacion).toLocaleString()}</p>
       </div>
 

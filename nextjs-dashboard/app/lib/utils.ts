@@ -1,15 +1,15 @@
 import { Revenue } from './definitions';
 
 export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString('en-US', {
+  return (amount / 100).toLocaleString('es-GT', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'GTQ',
   });
 };
 
 export const formatDateToLocal = (
   dateStr: string,
-  locale: string = 'en-US',
+  locale: string = 'es-GT',
 ) => {
   const date = new Date(dateStr);
   const options: Intl.DateTimeFormatOptions = {
@@ -22,14 +22,23 @@ export const formatDateToLocal = (
 };
 
 export const generateYAxis = (revenue: Revenue[]) => {
-  // Calculate what labels we need to display on the y-axis
-  // based on highest record and in 1000s
-  const yAxisLabels = [];
-  const highestRecord = Math.max(...revenue.map((month) => month.revenue));
-  const topLabel = Math.ceil(highestRecord / 1000) * 1000;
+  const highestRecord = Math.max(...revenue.map(m => m.revenue));
 
-  for (let i = topLabel; i >= 0; i -= 1000) {
-    yAxisLabels.push(`$${i / 1000}K`);
+  // Dividimos entre 1000 porque mostras QxxK
+  const topK = Math.ceil(highestRecord / 1000);
+
+  // Limitar a máximo 10 labels
+  const maxLabels = 10;
+
+  // Paso entre cada label (por ejemplo: 2K, 3K, 4K...)
+  const step = Math.ceil(topK / maxLabels);
+
+  const yAxisLabels: string[] = [];
+  const topLabel = step * maxLabels * 1000; // reconstruimos el valor real
+
+  for (let i = maxLabels; i >= 0; i--) {
+    const value = i * step;
+    yAxisLabels.push(`Q${value}K`);
   }
 
   return { yAxisLabels, topLabel };

@@ -15,12 +15,12 @@ export default function Cards({
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div className="card">
         <h3>Collected</h3>
-        <p>${collected.toLocaleString()}</p>
+        <p>Q{collected.toLocaleString()}</p>
       </div>
 
       <div className="card">
         <h3>Pending</h3>
-        <p>${pending.toLocaleString()}</p>
+        <p>Q{pending.toLocaleString()}</p>
       </div>
 
       <div className="card">

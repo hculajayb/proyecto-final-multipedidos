@@ -13,40 +13,51 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: false });
 
 export async function fetchRevenue() {
   try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
+    console.log("Fetching revenue from Component B API...");
 
-     console.log('Fetching revenue data...');
-     await new Promise((resolve) => setTimeout(resolve, 3000));
+    const res = await fetch("http://localhost:8081/facturas", {
+      method: "GET",
+      cache: "no-store"
+    });
 
-    const data = await sql<Revenue[]>`SELECT * FROM revenue`;
+    if (!res.ok) {
+      throw new Error("Failed to fetch invoices from component B");
+    }
 
-     console.log('Data fetch completed after 3 seconds.');
+    const facturas = await res.json();
 
-    return data;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
-}
+    // Lista de meses en orden
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
 
-export async function fetchLatestInvoices() {
-  try {
-    const data = await sql<LatestInvoiceRaw[]>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`;
+    // Inicializar revenue mensual
+    const revenueByMonth: Record<string, number> = {};
+    months.forEach(m => revenueByMonth[m] = 0);
 
-    const latestInvoices = data.map((invoice) => ({
-      ...invoice,
-      amount: formatCurrency(invoice.amount),
+    // Procesar facturas del endpoint
+    facturas.forEach((factura: any) => {
+      const date = new Date(factura.fechaCreacion);
+      const month = months[date.getMonth()];
+
+      // totalFactura viene en quetzales, ya está *en unidades*, NO en centavos
+      revenueByMonth[month] += factura.totalFactura;
+    });
+
+    // Convertir al formato que usa el chart:
+    const result = months.map((m) => ({
+      month: m,
+      revenue: revenueByMonth[m]
     }));
-    return latestInvoices;
+
+    console.log("Revenue processed:", result);
+
+    return result;
+
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the latest invoices.');
+    console.error("Error fetching revenue from component B:", error);
+    return [];
   }
 }
 
