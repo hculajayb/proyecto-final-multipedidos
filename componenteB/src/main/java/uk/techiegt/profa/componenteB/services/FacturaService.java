@@ -12,6 +12,7 @@ import uk.techiegt.profa.componenteB.repositories.FacturaRepository;
 import uk.techiegt.profa.componenteB.repositories.PedidoReferenciaRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -119,6 +120,11 @@ public class FacturaService {
         dto.setClienteId(factura.getClienteId());
         dto.setTotalFactura(factura.getTotalFactura());
 
+        // ✅ Convertir LocalDateTime a OffsetDateTime y enviarlo al DTO
+        if (factura.getFechaCreacion() != null) {
+            dto.setFechaCreacion(factura.getFechaCreacion().atOffset(ZoneOffset.UTC));
+        }
+
         List<PedidoReferenciaDto> pedidos = new ArrayList<>();
 
         if (referencias != null) {
@@ -131,7 +137,6 @@ public class FacturaService {
         }
 
         dto.setPedidos(pedidos);
-
         return dto;
     }
 
